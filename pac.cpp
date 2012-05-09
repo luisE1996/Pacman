@@ -3,59 +3,56 @@
 #include <iostream>
 #include <conio.h>
 
+using namespace std;
+
 enum { UP = 1, RIGHT = 2, DOWN = -1, LEFT = -2 };
 
 const int SIZE_FIELD_X = 15;
 const int SIZE_FIELD_Y = 30;
 
-using namespace std;
-
 ifstream input ("input.txt");
-
-
-
 
 int ReadKey (int *dir)
 {
-	INPUT_RECORD InputRecord[64];
+	INPUT_RECORD InputRecord[MaxRecords];
 	DWORD RecordsRead;
 	HANDLE ConsoleHandle = GetStdHandle (STD_INPUT_HANDLE);
-	PeekConsoleInput (ConsoleHandle, InputRecord, 64, &RecordsRead);
-	if (RecordsRead > 0) // ≈ÒÎË ÂÒÚ¸ ˜ÚÓ ÔÓ‚ÂˇÚ¸
+	PeekConsoleInput (ConsoleHandle, InputRecord, MaxRecords, &RecordsRead);
+
+	if (RecordsRead > 0) // –ï—Å–ª–∏ –µ—Å—Ç—å —á—Ç–æ –ø—Ä–æ–≤–µ—Ä—è—Ç—å
 	{
-		ReadConsoleInput (ConsoleHandle, InputRecord, 64, &RecordsRead);
-			for (int i = 0; i < RecordsRead; i++)
-				if (InputRecord[i].EventType == KEY_EVENT && InputRecord[i].Event.KeyEvent.bKeyDown) // ≈ÒÎË ·˚Î‡ Ì‡Ê‡Ú‡ ÍÌÓÔÍ‡
-					switch (InputRecord[i].Event.KeyEvent.wVirtualKeyCode) // œÓ‚ÂˇÂÏ Â∏ ‚ËÚÛ‡Î¸Ì˚È ÍÓ‰
-					{
-						case 38: //  ÌÓÔÍ‡ W
-						case 87: // —ÚÂÎÍ‡ ‚‚Âı
-							*dir = UP;
-							break;
-						case 39: //  ÌÓÔÍ‡ D
-						case 68: // —ÚÂÎÍ‡ ‚Ô‡‚Ó
-							*dir = RIGHT;
-							break;
-						case 40: //  ÌÓÔÍ‡ S
-						case 83: // —ÚÂÎÍ‡ ‚ÌËÁ
-							*dir = DOWN;
-							break;
-						case 37: //  ÌÓÔÍ‡ A
-						case 65: // —ÚÂÎÍ‡ ‚ÎÂ‚Ó
-							*dir = LEFT;
-							break;
-					}
-		return *dir;
-	}	
-	return *dir;
+		ReadConsoleInput (ConsoleHandle, InputRecord, MaxRecords, &RecordsRead);
+		for (int i = 0; i < RecordsRead; i++)
+			if (InputRecord[i].EventType == KEY_EVENT && InputRecord[i].Event.KeyEvent.bKeyDown) // –ï—Å–ª–∏ –±—ã–ª–∞ –Ω–∞–∂–∞—Ç–∞ –∫–Ω–æ–ø–∫–∞
+				switch (InputRecord[i].Event.KeyEvent.wVirtualKeyCode) // –ü—Ä–æ–≤–µ—Ä—è–µ–º –µ—ë –≤–∏—Ä—Ç—É–∞–ª—å–Ω—ã–π –∫–æ–¥
+				{
+					case 38: // –ö–Ω–æ–ø–∫–∞ W
+					case 87: // –°—Ç—Ä–µ–ª–∫–∞ –≤–≤–µ—Ä—Ö
+						if (Direction != UP)
+							return UP;
+						break;
+					case 39: // –ö–Ω–æ–ø–∫–∞ D
+					case 68: // –°—Ç—Ä–µ–ª–∫–∞ –≤–ø—Ä–∞–≤–æ
+						if (Direction != RIGHT)
+							return RIGHT;
+						break;
+					case 40: // –ö–Ω–æ–ø–∫–∞ S
+					case 83: // –°—Ç—Ä–µ–ª–∫–∞ –≤–Ω–∏–∑
+						if (Direction != DOWN)
+							return DOWN;
+						break;
+					case 37: // –ö–Ω–æ–ø–∫–∞ A
+					case 65: // –°—Ç—Ä–µ–ª–∫–∞ –≤–ª–µ–≤–æ
+						if (Direction != LEFT)
+							return LEFT;
+						break;
+				}
+	}
+	return Direction;
 }
 
 class TGM 
-{
-public :
-		
-
-};
+{ };
 
 struct coord
 {
@@ -68,7 +65,6 @@ void setcolor (int k)
 	hConsole = GetStdHandle(STD_OUTPUT_HANDLE); 
 	SetConsoleTextAttribute(hConsole, k); 
 };
-
 
 void CreateField (const int x, const int y, char a[SIZE_FIELD_X][SIZE_FIELD_Y])
 {
@@ -105,7 +101,6 @@ void WriteField (const int x, const int y, char a[SIZE_FIELD_X][SIZE_FIELD_Y])
 		};				
 		cout << endl;
 	}
-
 };
 
 
@@ -115,20 +110,25 @@ int main ()
 	coord Enemy[3] = {(2,2), (2,3), (2,4)};
 	int key;
 	TGM state;
+
 	coord Pac;
 	Pac.x = 10;
 	Pac.y = 15;
+
 	setcolor (15); 
 	CreateField (SIZE_FIELD_X, SIZE_FIELD_Y, a);
+
 	int dir = LEFT;
 	bool GameOver = TRUE;
 	while (GameOver)
 	{
 		key = ReadKey (&dir);
 		a[Pac.x][Pac.y] = '0';
+	
 		coord Cpy;
 		Cpy.x = Pac.x;
 		Cpy.y = Pac.y;
+	
 		switch (key)
 		{
 		case LEFT :
@@ -144,10 +144,10 @@ int main ()
 			Pac.x++;
 			break;
 		};
+	
 		if (a[Pac.x][Pac.y] == 'E')
-		{
 			break;	
-		}
+
 		if (!(a[Pac.x][Pac.y] == '#'))
 			a[Pac.x][Pac.y] = 'P';
 		else
@@ -156,11 +156,15 @@ int main ()
 			Pac.y = Cpy.y;
 			a[Pac.x][Pac.y] = 'P';
 		}
+
 		WriteField (SIZE_FIELD_X, SIZE_FIELD_Y, a);
+
 		Sleep (300);
 		system("cls");
 	}
+
 	cout << "GAME OVER";
 	getch ();
+
 	return 0;
 }
